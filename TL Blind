@@ -5,16 +5,22 @@ import sqlite3
 champ_read = pd.read_csv("League of Legends Ranked Match Data  Season 15 (EUN).csv")
 champ_data = pd.DataFrame(champ_read)
 column_names = list(champ_read.columns)
-print(column_names)
 names_list = champ_data['champion_name'].unique()
 role_list = champ_data['position'].unique()
 matchup_count = champ_data['game_id'].nunique()
-print(matchup_count)
+#print(matchup_count)
+
+top = champ_data[champ_data['position'] == 'TOP']
+counts = top['game_id'].value_counts()
+repeated_top_ids = set(counts[counts == 2].index)
+
+top_repeated = top[top["game_id"].isin(repeated_top_ids)]
 
 champion = input("Enter the champion you want to analyze: ")
 if champion not in names_list:
     print("Champion not found. Please enter a valid champion name.")
     champion = input("Enter the champion you want to analyze: ")
+
 con = sqlite3.connect(":memory:")
 champ_read.to_sql("ranked_match_data", con, index=False, if_exists="replace")
 
@@ -22,7 +28,10 @@ query ="""
 SELECT win
 FROM ranked_match_data
 WHERE position = 'TOP' AND champion_name = ?
-LIMIT 10
+
 """
-print(pd.read_sql_query(query, con, params=[champion]))
-# First I must choose a champion to analyze
+pd.read_sql_query(query, con, params=[champion])
+
+
+
+
