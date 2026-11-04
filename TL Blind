@@ -24,13 +24,29 @@ if champion not in names_list:
 con = sqlite3.connect(":memory:")
 champ_read.to_sql("ranked_match_data", con, index=False, if_exists="replace")
 
-query ="""
-SELECT win
+query = """
+SELECT *
 FROM ranked_match_data
-WHERE position = 'TOP' AND champion_name = ?
-
+WHERE game_id IN (SELECT game_id FROM ranked_match_data WHERE position = 'TOP')
 """
-pd.read_sql_query(query, con, params=[champion])
+df1 = pd.read_sql_query(query, con)
+
+query2 = """
+SELECT a.champion_name,
+       b.champion_name AS champion_name_opp,
+       AVG(a.win) AS win_rate,
+       COUNT(*) AS games
+FROM ranked_match_data a
+JOIN ranked_match_data b
+ON a.game_id = b.game_id
+AND a.position = b.position
+WHERE a.position = 'TOP' 
+AND a.champion_name != b.champion_name
+AND a.champion_name = ?
+GROUP BY a.champion_name, b.champion_name
+"""
+df2 = pd.read_sql_query(query2, con, params=[champion])
+print(df2)
 
 
 
