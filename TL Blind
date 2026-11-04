@@ -1,0 +1,12 @@
+import pandas as pd
+import numpy as np
+import sqlite3 
+
+champ_read = pd.read_csv("League of Legends Ranked Match Data  Season 15 (EUN).csv")
+champ_data = pd.DataFrame(champ_read)
+column_names = list(champ_read.columns)
+print(column_names)
+names_list = champ_data['champion_name'].unique()
+role_list = champ_data['position'].unique()
+matchup_count = champ_data['game_id'].nunique()
+print(matchup_count)
