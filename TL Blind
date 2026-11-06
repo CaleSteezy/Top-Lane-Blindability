@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import sqlite3 
+import matplotlib as plt
 
 champ_read = pd.read_csv("League of Legends Ranked Match Data  Season 15 (EUN).csv")
 champ_data = pd.DataFrame(champ_read)
@@ -48,6 +49,22 @@ GROUP BY a.champion_name, b.champion_name
 df2 = pd.read_sql_query(query2, con, params=[champion])
 print(df2)
 
+champ_stats = df2[df2["champion_name"] == champion].sort_values("win_rate")
 
-
-
+#For the graph, block the champions in 2% increments on x axis and then y axis is how many champions fall into that block. Then plot the graph with the x axis being the win rate and the y axis being the number of champions that fall into that block.
+#Then fit a bell curve to the graph and find the standard deviation of the win rates
+# odds = WR/ (100- WR)
+# odds(expected) = odds(aWR) / odds (b.WR)
+# above expected = win rate - expected
+# spread^2 = true spread^2 + noise^2
+# every matchup is a binomial distrubtion, which means the noise is made up only of the number of samples
+# From that we can find the true spread of the champion's win rate above expected
+# Then look at how many are below -2% and above +2%
+# Now take the number of champs that are below -2% and above +2% and divide by the total number of champions to get the percentage of champions that are below -2% and above +2% and divide them by the total amount of matchups to find the percentage of counter picks
+# build a model that predicts the odds of being countered when selecting a given champion
+# if i had the riot api i could have a much bigger data set and a model in which i could fine tune based on my knowledge of what effects a role's performance
+# a big factor is what matchup is seen in bot lane (adc/support) and what jungler is on either team
+# if the jungler sees the top lane matchup as more advantageous to gank, then that will effect the ability to win even in a more favorable matchup, especially if the jungle (when played in top lane) would counter your champion
+# i would also factor in the pick rate of each champion, which would effect the odds that a counter pick would actually be chosen
+# 1 - (1- q)^n where q is the percentage of champions that are counters and n is the number of champions a given person can play (decently)
+# I would also factor in the rank of the players, as certain champions do not get their full potential exploited in lower ranks
